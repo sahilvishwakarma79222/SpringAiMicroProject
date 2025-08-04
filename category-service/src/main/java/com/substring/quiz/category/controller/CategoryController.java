@@ -52,7 +52,11 @@ public class CategoryController {
 				sortDir);
 			return new ResponseEntity<>(allCategories, HttpStatus.OK);
 	}
-	
+	@GetMapping("/all")
+	public ResponseEntity<List<CategoryDto>> getAll(){
+		List<CategoryDto> all = categoryService.findAll();
+		return new ResponseEntity<List<CategoryDto>>(all,HttpStatus.OK);
+	}
 	
 
 	@PutMapping("/category/update/{categoryId}")
@@ -68,5 +72,7 @@ public class CategoryController {
 		String msg = categoryService.deleteCategory(categoryId);
 		return new ResponseEntity<>(msg, HttpStatus.OK);
 	}
+	
+
 
 }

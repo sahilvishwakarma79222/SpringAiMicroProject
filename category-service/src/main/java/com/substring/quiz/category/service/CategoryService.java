@@ -11,6 +11,7 @@ public interface CategoryService {
 	public CategoryDto saveCategory(CategoryDto dto);
 	public PageResponse<CategoryDto> getAllCategories(int pageNumber, int pageSize, String sortByField,
 			String sortDirection);
+	public List<CategoryDto> findAll();
 	public Optional<CategoryDto> findCategoryById(String catId);
 	public CategoryDto updateCategory(String catId,CategoryDto dto);
 	public String deleteCategory(String catId);

@@ -40,7 +40,15 @@ public class CategoryServiceImpl implements CategoryService{
 		return mapper.map(save, CategoryDto.class);
 	}
 
-
+	@Override
+	public List<CategoryDto> findAll() {
+		// TODO Auto-generated method stub
+		List<Category> entity = categoryRepository.findAll();
+		List<CategoryDto> list = entity.stream().map(e-> mapper.map(e, CategoryDto.class)).toList();
+		return list;
+	}
+	
+	
 	@Override
 	public PageResponse<CategoryDto> getAllCategories(int pageNumber, int pageSize, String sortByField,
 			String sortDirection) {
@@ -91,6 +99,9 @@ public class CategoryServiceImpl implements CategoryService{
 		
 		return "category is succesfully deleted with id "+catId;
 	}
+
+
+	
 
 	
 

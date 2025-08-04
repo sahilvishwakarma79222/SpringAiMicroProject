@@ -1,0 +1,130 @@
+package com.substring.quiz.serviceimpl;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.modelmapper.ModelMapper;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.substring.quiz.collection.Quiz;
+import com.substring.quiz.dto.CategoryDto;
+import com.substring.quiz.dto.QuizDto;
+import com.substring.quiz.repository.QuizRepository;
+import com.substring.quiz.service.CategoryFeignService;
+import com.substring.quiz.service.CategorySerrvice;
+import com.substring.quiz.service.QuizService;
+
+@Service
+public class QuizServiceImpl implements QuizService{
+
+	private org.slf4j.Logger logger=LoggerFactory.getLogger(QuizServiceImpl.class);
+	private final QuizRepository quizRepository;
+	private final ModelMapper mapper;
+	private final RestTemplate restTemplate;
+	private final CategorySerrvice categorySerrvice;
+	private final CategoryFeignService categoryFeignService;
+//	private final WebClient webClient;  //coz humne alg se category serve bana liya hai 
+	public QuizServiceImpl(QuizRepository quizRepository,ModelMapper mapper,RestTemplate restTemplate
+//			,WebClient webClient
+			,CategorySerrvice categorySerrvice
+			,CategoryFeignService categoryFeignService) {
+		this.mapper=mapper;
+		this.quizRepository=quizRepository;
+		this.restTemplate=restTemplate;
+		this.categorySerrvice=categorySerrvice;
+//		this.webClient=webClient;
+		this.categoryFeignService=categoryFeignService;
+	}
+	
+	@Override 
+	public QuizDto saveQuiz(QuizDto dto) {
+	
+		Quiz entity = mapper.map(dto, Quiz.class);
+		entity.setId(UUID.randomUUID().toString());
+		
+		String url="http://localhost:9091/api/v1/category/catId/"+entity.getCategoryId();
+		CategoryDto category = restTemplate.getForObject(url, CategoryDto.class); 
+		logger.info("category exist  "+category.getTitle());
+		
+		Quiz entity1 = quizRepository.save(entity);
+		return mapper.map(entity1, QuizDto.class);
+	}
+
+	@Override
+	public List<QuizDto> allQuiz() {
+		
+		List<Quiz> all = quizRepository.findAll();
+		List<QuizDto> quizDtos=all.stream().map(quiz->{
+			String categoryId = quiz.getCategoryId();
+			QuizDto quizDto=mapper.map(quiz, QuizDto.class);
+			//call to quiz service using webclient
+			CategoryDto categoryDto = this.categorySerrvice.findById(categoryId);
+			quizDto.setCategorydto(categoryDto);
+			return quizDto;
+		}).toList();
+		
+		return quizDtos;
+		
+	}
+	
+	@Override
+	public List<QuizDto> getByCategoryId(String categoryId){
+		
+		List<Quiz> quizesByCategoryId = quizRepository.findByCategoryId(categoryId);
+
+		List<QuizDto> list = quizesByCategoryId.stream().map(q->
+		{
+			 QuizDto dto = mapper.map(q, QuizDto.class);
+			 CategoryDto byCategoryId = categoryFeignService.findByCategoryId(dto.getCategoryId());
+			 dto.setCategorydto(byCategoryId);
+			 return dto;
+		}
+		).toList();
+		return list;
+	}
+
+	@Override
+	public QuizDto updateQuiz(String quizId, QuizDto dto) {
+		quizRepository.findById(quizId).orElseThrow(()-> new RuntimeException("quiz not found with this id"));
+		Quiz entity = mapper.map(dto, Quiz.class);
+		entity.setId(quizId);
+		
+
+		String url="http://localhost:9091/api/v1/category/catId/"+entity.getCategoryId();
+		CategoryDto category = restTemplate.getForObject(url, CategoryDto.class); 
+		logger.info("category exist  "+category.getTitle());
+		
+		Quiz save = quizRepository.save(entity);
+		QuizDto responseDto = mapper.map(save, QuizDto.class);
+		return responseDto;
+	
+	}
+
+	@Override
+	public String deleteQuiz(String quizId) {
+		 Optional<Quiz> optionalQuiz = quizRepository.findById(quizId);
+	        if (optionalQuiz.isEmpty()) {
+	            throw new RuntimeException("Quiz not found with id: " + quizId);
+	        }
+	        quizRepository.deleteById(quizId);
+	        return "Quiz deleted with id: " + quizId;
+	}
+
+	@Override
+	public QuizDto getQuizById(String quizId) {
+		Optional<Quiz> quiz = quizRepository.findById(quizId);
+			String categoryId = quiz.get().getCategoryId();
+			QuizDto dto = mapper.map(quiz.get(), QuizDto.class);
+			String url="http://localhost:9091/api/v1/category/catId/"+quiz.get().getCategoryId();
+			logger.info(url);
+			CategoryDto category = restTemplate.getForObject(url, CategoryDto.class); 
+			dto.setCategorydto(category);
+       
+        return dto;
+	}
+
+	
+}
