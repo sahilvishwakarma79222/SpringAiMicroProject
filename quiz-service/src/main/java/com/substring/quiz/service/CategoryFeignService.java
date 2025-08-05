@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.substring.quiz.dto.CategoryDto;
 
-@FeignClient(name = "category-service",url = "http://localhost:9091/api/v1/category")
+@FeignClient(name = "CATEGORY-SERVICE"
+//,url = "http://CATEGORY-SERVICE/api/v1/category"
+)
 public interface CategoryFeignService {
 
 	@GetMapping("/all")

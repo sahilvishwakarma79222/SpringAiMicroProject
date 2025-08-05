@@ -1,6 +1,7 @@
 package com.substring.quiz.configuration;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -16,6 +17,7 @@ public class Configuration {
 	
 	
 	@Bean
+	@LoadBalanced
 	public RestTemplate restTemplate() {
 		return new RestTemplate();
 	}
@@ -26,10 +28,17 @@ public class Configuration {
 //		return WebClient.builder();
 //	}
 	
+//	@Bean
+//	public WebClient webClient() {
+//		return WebClient.builder()
+//				.baseUrl("http://localhost:9091")
+//				.build();
+//	}
+	
 	@Bean
-	public WebClient webClient() {
-		return WebClient.builder()
-				.baseUrl("http://localhost:9091")
-				.build();
+	@LoadBalanced
+	public WebClient.Builder webClient() {
+		return WebClient.builder();
 	}
+	 
 }	

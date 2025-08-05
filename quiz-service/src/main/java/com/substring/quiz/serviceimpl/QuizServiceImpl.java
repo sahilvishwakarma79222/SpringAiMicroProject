@@ -8,6 +8,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.substring.quiz.collection.Quiz;
 import com.substring.quiz.dto.CategoryDto;
@@ -27,16 +28,21 @@ public class QuizServiceImpl implements QuizService{
 	private final CategorySerrvice categorySerrvice;
 	private final CategoryFeignService categoryFeignService;
 //	private final WebClient webClient;  //coz humne alg se category serve bana liya hai 
+	private final WebClient.Builder webClientBuilder;
+	
 	public QuizServiceImpl(QuizRepository quizRepository,ModelMapper mapper,RestTemplate restTemplate
 //			,WebClient webClient
 			,CategorySerrvice categorySerrvice
-			,CategoryFeignService categoryFeignService) {
+			,CategoryFeignService categoryFeignService
+			,WebClient.Builder webClientBuilder) {
 		this.mapper=mapper;
 		this.quizRepository=quizRepository;
 		this.restTemplate=restTemplate;
 		this.categorySerrvice=categorySerrvice;
-//		this.webClient=webClient;
 		this.categoryFeignService=categoryFeignService;
+		this.webClientBuilder=webClientBuilder;
+		
+//		this.webClient=webClientBuilder.baseUrl("http://CATEGORY-SERVICE").build();
 	}
 	
 	@Override 
@@ -118,7 +124,7 @@ public class QuizServiceImpl implements QuizService{
 		Optional<Quiz> quiz = quizRepository.findById(quizId);
 			String categoryId = quiz.get().getCategoryId();
 			QuizDto dto = mapper.map(quiz.get(), QuizDto.class);
-			String url="http://localhost:9091/api/v1/category/catId/"+quiz.get().getCategoryId();
+			String url="http://CATEGORY-SERVICE/api/v1/category/catId/"+quiz.get().getCategoryId();
 			logger.info(url);
 			CategoryDto category = restTemplate.getForObject(url, CategoryDto.class); 
 			dto.setCategorydto(category);

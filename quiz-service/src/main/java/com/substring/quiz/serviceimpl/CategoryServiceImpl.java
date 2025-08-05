@@ -22,11 +22,13 @@ public class CategoryServiceImpl implements CategorySerrvice{
 	private final RestTemplate restTemplate;
 	private final WebClient webClient;
 	private ModelMapper mapper;
+	private final WebClient.Builder webClientBuilder;
 	
-	public CategoryServiceImpl(RestTemplate restTemplate,WebClient webClient,ModelMapper mapper) {
-		this.restTemplate=restTemplate;
-		this.webClient=webClient;
-		this.mapper=mapper;
+	public CategoryServiceImpl(RestTemplate restTemplate, WebClient.Builder webClientBuilder, ModelMapper mapper) {
+	    this.restTemplate = restTemplate;
+	    this.webClient = webClientBuilder.baseUrl("http://CATEGORY-SERVICE").build();
+	    this.mapper = mapper;
+	    this.webClientBuilder = webClientBuilder;
 	}
 	
 	
