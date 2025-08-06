@@ -17,19 +17,19 @@ import com.substring.quiz.dto.CategoryDto;
 )
 public interface CategoryFeignService {
 
-	@GetMapping("/all")
-	List<CategoryDto> findAll();	
-	
-	@GetMapping("/catId/{categoryId}")
+	@GetMapping("/api/v1/category/all")
+	List<CategoryDto> findAll();
+
+	@GetMapping("/api/v1/category/catId/{categoryId}")
 	CategoryDto findByCategoryId(@PathVariable String categoryId);
-	
-	@PostMapping("/create")
+
+	@PostMapping("/api/v1/category/create")
 	CategoryDto create(@RequestBody CategoryDto categoryDto);
-	
-	@PutMapping("/category/update/{categoryId}")
+
+	@PutMapping("/api/v1/category/category/update/{categoryId}")
 	CategoryDto update(@PathVariable String categoryId,@RequestBody CategoryDto categoryDto);
-	
-	@DeleteMapping("/delete/{categoryId}")
+
+	@DeleteMapping("/api/v1/category/delete/{categoryId}")
 	String delete (@PathVariable String categoryId);
-	
+
 }

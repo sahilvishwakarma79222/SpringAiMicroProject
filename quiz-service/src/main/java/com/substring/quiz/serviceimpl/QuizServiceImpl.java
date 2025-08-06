@@ -25,7 +25,7 @@ public class QuizServiceImpl implements QuizService{
 	private final QuizRepository quizRepository;
 	private final ModelMapper mapper;
 	private final RestTemplate restTemplate;
-	private final CategorySerrvice categorySerrvice;
+	private final CategorySerrvice categoryWebClientSerrvice;
 	private final CategoryFeignService categoryFeignService;
 //	private final WebClient webClient;  //coz humne alg se category serve bana liya hai 
 	private final WebClient.Builder webClientBuilder;
@@ -38,7 +38,7 @@ public class QuizServiceImpl implements QuizService{
 		this.mapper=mapper;
 		this.quizRepository=quizRepository;
 		this.restTemplate=restTemplate;
-		this.categorySerrvice=categorySerrvice;
+		this.categoryWebClientSerrvice=categorySerrvice;
 		this.categoryFeignService=categoryFeignService;
 		this.webClientBuilder=webClientBuilder;
 		
@@ -51,12 +51,18 @@ public class QuizServiceImpl implements QuizService{
 		Quiz entity = mapper.map(dto, Quiz.class);
 		entity.setId(UUID.randomUUID().toString());
 		
-		String url="http://localhost:9091/api/v1/category/catId/"+entity.getCategoryId();
-		CategoryDto category = restTemplate.getForObject(url, CategoryDto.class); 
-		logger.info("category exist  "+category.getTitle());
-		
-		Quiz entity1 = quizRepository.save(entity);
-		return mapper.map(entity1, QuizDto.class);
+//		String url="http://CATEGORY-SERVICE:9091/api/v1/category/catId/"+entity.getCategoryId();
+//		CategoryDto category = restTemplate.getForObject(url, CategoryDto.class);
+//		logger.info("category exist  "+category.getTitle());
+
+        System.out.println("category id is"+dto.getCategoryId());
+        CategoryDto categoryDto = categoryFeignService.findByCategoryId(dto.getCategoryId());
+
+
+        Quiz entity1 = quizRepository.save(entity);
+        QuizDto responseDto = mapper.map(entity1, QuizDto.class);
+        responseDto.setCategorydto(categoryDto);
+        return responseDto;
 	}
 
 	@Override
@@ -67,7 +73,7 @@ public class QuizServiceImpl implements QuizService{
 			String categoryId = quiz.getCategoryId();
 			QuizDto quizDto=mapper.map(quiz, QuizDto.class);
 			//call to quiz service using webclient
-			CategoryDto categoryDto = this.categorySerrvice.findById(categoryId);
+			CategoryDto categoryDto = this.categoryWebClientSerrvice.findById(categoryId);
 			quizDto.setCategorydto(categoryDto);
 			return quizDto;
 		}).toList();
@@ -99,7 +105,7 @@ public class QuizServiceImpl implements QuizService{
 		entity.setId(quizId);
 		
 
-		String url="http://localhost:9091/api/v1/category/catId/"+entity.getCategoryId();
+		String url="lb://localhost:9091/api/v1/category/catId/"+entity.getCategoryId();
 		CategoryDto category = restTemplate.getForObject(url, CategoryDto.class); 
 		logger.info("category exist  "+category.getTitle());
 		
@@ -119,18 +125,34 @@ public class QuizServiceImpl implements QuizService{
 	        return "Quiz deleted with id: " + quizId;
 	}
 
+//    ye webclient ke saath hai niche feign se kiya hu
 	@Override
 	public QuizDto getQuizById(String quizId) {
 		Optional<Quiz> quiz = quizRepository.findById(quizId);
 			String categoryId = quiz.get().getCategoryId();
 			QuizDto dto = mapper.map(quiz.get(), QuizDto.class);
-			String url="http://CATEGORY-SERVICE/api/v1/category/catId/"+quiz.get().getCategoryId();
+			String url="lb://CATEGORY-SERVICE/api/v1/category/catId/"+quiz.get().getCategoryId();
 			logger.info(url);
-			CategoryDto category = restTemplate.getForObject(url, CategoryDto.class); 
+			CategoryDto category = restTemplate.getForObject(url, CategoryDto.class);
 			dto.setCategorydto(category);
-       
+
         return dto;
 	}
 
-	
+    // isme category ko feign client se call kiya hu
+//    @Override
+//    public QuizDto getQuizById(String quizId) {
+//        Optional<Quiz> quiz = quizRepository.findById(quizId);
+//        String categoryId = quiz.get().getCategoryId();
+//        QuizDto dto = mapper.map(quiz.get(), QuizDto.class);
+//
+//        CategoryDto catDto = categoryFeignService.findByCategoryId(quiz.get().getCategoryId());
+//        dto.setCategorydto(catDto);
+//
+//        return dto;
+//    }
+
+    // agr category nhi mila to exception milega jo ki multiple ho skte
+
+
 }
