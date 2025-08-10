@@ -3,6 +3,7 @@ package com.substring.quiz.category.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,6 +29,17 @@ public class CategoryController {
 	public CategoryController(CategoryService categoryService) {
 		this.categoryService = categoryService;
 	}
+//-------------------------------------------------------------------------------------------------------------
+    @Value("${config.value}")
+    private String configValue;
+
+    @GetMapping("/config")
+    public ResponseEntity<String> getConfigValue(){
+        return new ResponseEntity<>(configValue,HttpStatus.OK);
+    }
+
+//-------------------------------------------------------------------------------------------------------------
+
 
 	@PostMapping("/create")
 	public ResponseEntity<CategoryDto> saveCategory(@RequestBody CategoryDto dto) {
@@ -72,7 +84,8 @@ public class CategoryController {
 		String msg = categoryService.deleteCategory(categoryId);
 		return new ResponseEntity<>(msg, HttpStatus.OK);
 	}
-	
+
+
 
 
 }
