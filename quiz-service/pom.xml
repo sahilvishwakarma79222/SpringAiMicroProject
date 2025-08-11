@@ -58,7 +58,10 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-<!-- https://mvnrepository.com/artifact/org.springframework/spring-webflux -->
+
+
+
+        <!-- https://mvnrepository.com/artifact/org.springframework/spring-webflux -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-webflux</artifactId>
@@ -72,7 +75,13 @@
 	<dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-    </dependency> 
+    </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
 
 	</dependencies>
 
