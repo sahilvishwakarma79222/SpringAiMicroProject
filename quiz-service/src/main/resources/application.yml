@@ -4,6 +4,9 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/quizdb
+  config:
+    import:
+      - configserver:http://localhost:9095
 
 server:
   port: 9092
