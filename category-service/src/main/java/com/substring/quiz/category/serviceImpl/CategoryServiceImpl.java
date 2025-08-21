@@ -44,7 +44,7 @@ public class CategoryServiceImpl implements CategoryService{
 	public List<CategoryDto> findAll() {
 		// TODO Auto-generated method stub
 		List<Category> entity = categoryRepository.findAll();
-		List<CategoryDto> list = entity.stream().map(e-> mapper.map(e, CategoryDto.class)).toList();
+		List<CategoryDto> list = entity.stream().map(e-> mapper.map(e, CategoryDto.class)).collect(Collectors.toList());
 		return list;
 	}
 	

@@ -3,6 +3,7 @@ package com.substring.quiz.serviceimpl;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,7 @@ public class QuizServiceImpl implements QuizService{
 			CategoryDto categoryDto = this.categoryWebClientSerrvice.findById(categoryId);
 			quizDto.setCategorydto(categoryDto);
 			return quizDto;
-		}).toList();
+		}).collect(Collectors.toList());
 		
 		return quizDtos;
 		
@@ -94,7 +95,7 @@ public class QuizServiceImpl implements QuizService{
 			 dto.setCategorydto(byCategoryId);
 			 return dto;
 		}
-		).toList();
+		).collect(Collectors.toList());
 		return list;
 	}
 
@@ -118,7 +119,8 @@ public class QuizServiceImpl implements QuizService{
 	@Override
 	public String deleteQuiz(String quizId) {
 		 Optional<Quiz> optionalQuiz = quizRepository.findById(quizId);
-	        if (optionalQuiz.isEmpty()) {
+
+	        if (!optionalQuiz.isPresent()) {
 	            throw new RuntimeException("Quiz not found with id: " + quizId);
 	        }
 	        quizRepository.deleteById(quizId);
